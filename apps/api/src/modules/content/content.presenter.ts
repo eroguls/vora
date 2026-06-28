@@ -1,0 +1,50 @@
+import type { FeedContent } from '@vora/types';
+
+export function presentContent(content: any, viewerState?: FeedContent['viewerState']): FeedContent {
+  const profile = content.author?.profile;
+  return {
+    id: content.id,
+    slug: content.slug,
+    contentType: content.contentType,
+    status: content.status,
+    title: content.title,
+    body: content.body,
+    excerpt: content.excerpt,
+    language: content.language,
+    originalLanguage: content.originalLanguage,
+    visibility: content.visibility,
+    publishedAt: content.publishedAt?.toISOString?.() ?? content.publishedAt ?? null,
+    createdAt: content.createdAt?.toISOString?.() ?? content.createdAt,
+    updatedAt: content.updatedAt?.toISOString?.() ?? content.updatedAt,
+    metadata: content.metadata ?? {},
+    viewCount: content.viewCount,
+    likeCount: content.likeCount,
+    commentCount: content.commentCount,
+    shareCount: content.shareCount,
+    saveCount: content.saveCount,
+    author: {
+      id: content.author.id,
+      username: content.author.username,
+      displayName: content.author.displayName,
+      avatarUrl: profile?.avatarUrl ?? null,
+      isVerified: content.author.isVerified,
+      country: profile?.country ?? null,
+      city: profile?.city ?? null,
+    },
+    media: (content.media ?? []).map((media: any) => ({
+      id: media.id,
+      mediaType: media.mediaType,
+      publicUrl: media.publicUrl,
+      thumbnailUrl: media.thumbnailUrl,
+      mimeType: media.mimeType,
+      width: media.width,
+      height: media.height,
+      duration: media.duration,
+      fileSize: media.fileSize,
+      processingStatus: media.processingStatus,
+      sortOrder: media.sortOrder,
+      metadata: media.metadata ?? {},
+    })),
+    viewerState,
+  };
+}

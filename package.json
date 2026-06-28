@@ -1,0 +1,41 @@
+{
+  "name": "vora",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.32.1",
+  "scripts": {
+    "dev": "pnpm --parallel --filter @vora/api --filter @vora/web --filter @vora/admin dev",
+    "dev:web": "pnpm --filter @vora/web dev",
+    "dev:api": "pnpm --filter @vora/api dev",
+    "dev:admin": "pnpm --filter @vora/admin dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "test:e2e": "pnpm --filter @vora/web test:e2e",
+    "format": "prettier --write .",
+    "prisma:generate": "pnpm --filter @vora/api prisma:generate",
+    "prisma:migrate": "pnpm --filter @vora/api prisma:migrate",
+    "prisma:seed": "pnpm --filter @vora/api prisma:seed",
+    "prisma:seed:reset": "pnpm --filter @vora/api prisma:seed:reset",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down --remove-orphans",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.36.0",
+    "@typescript-eslint/parser": "^8.36.0",
+    "eslint": "^9.30.1",
+    "eslint-config-next": "^15.3.5",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
+    "prettier": "^3.6.2",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx,json,md,css}": [
+      "prettier --write"
+    ]
+  }
+}

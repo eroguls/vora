@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "baseUrl": ".",
+    "paths": {
+      "@vora/types": ["packages/types/src/index.ts"],
+      "@vora/validation": ["packages/validation/src/index.ts"],
+      "@vora/config": ["packages/config/src/index.ts"],
+      "@vora/content-engine": ["packages/content-engine/src/index.ts"],
+      "@vora/api-client": ["packages/api-client/src/index.ts"],
+      "@vora/ui": ["packages/ui/src/index.ts"]
+    }
+  }
+}

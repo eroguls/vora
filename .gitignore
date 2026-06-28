@@ -1,0 +1,14 @@
+node_modules
+.next
+dist
+coverage
+.turbo
+.env
+.env.*
+!.env.example
+apps/api/prisma/dev.db
+apps/api/generated
+playwright-report
+test-results
+uploads
+*.log

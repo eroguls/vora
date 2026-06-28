@@ -1,0 +1,132 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  background: #fbfffe;
+  color: #111111;
+  --vora-turquoise: #00e5ff;
+  --vora-red: #e11d48;
+  --vora-amber: #f59e0b;
+}
+
+:root.dark {
+  color-scheme: dark;
+  background: #0c1014;
+  color: #f8fafc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(0, 229, 255, 0.16), transparent 28rem),
+    radial-gradient(circle at 100% 8%, rgba(225, 29, 72, 0.08), transparent 26rem),
+    #fbfffe;
+  color: #111111;
+  letter-spacing: 0;
+}
+
+:root.dark body {
+  background:
+    radial-gradient(circle at 8% 0%, rgba(0, 229, 255, 0.12), transparent 28rem),
+    radial-gradient(circle at 100% 8%, rgba(225, 29, 72, 0.11), transparent 26rem),
+    #0c1014;
+  color: #f8fafc;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.focus-ring {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2;
+  --tw-ring-color: #00e5ff;
+}
+
+.vora-gradient {
+  background: linear-gradient(135deg, #00e5ff 0%, #00a3ff 46%, #e11d48 100%);
+}
+
+.vora-nav-gradient {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.17), rgba(255, 255, 255, 0.86) 52%, rgba(225, 29, 72, 0.11));
+}
+
+:root.dark .vora-nav-gradient {
+  background: linear-gradient(135deg, rgba(0, 229, 255, 0.18), rgba(15, 23, 42, 0.78) 52%, rgba(225, 29, 72, 0.14));
+}
+
+:root.dark [class~="bg-white"],
+:root.dark [class~="bg-white/95"],
+:root.dark [class~="bg-white/90"],
+:root.dark [class~="bg-white/80"],
+:root.dark [class~="bg-white/70"] {
+  background-color: rgba(12, 16, 20, 0.95);
+}
+
+:root.dark [class~="bg-neutral-50"],
+:root.dark [class~="bg-neutral-100"] {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+:root.dark [class~="border-neutral-100"],
+:root.dark [class~="border-neutral-200"],
+:root.dark [class~="border-neutral-300"] {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+:root.dark [class~="text-neutral-950"],
+:root.dark [class~="text-neutral-900"],
+:root.dark [class~="text-neutral-800"] {
+  color: #f8fafc;
+}
+
+:root.dark [class~="text-neutral-700"],
+:root.dark [class~="text-neutral-600"] {
+  color: #d1d5db;
+}
+
+:root.dark [class~="text-neutral-500"] {
+  color: #a3a3a3;
+}
+
+:root.dark [class~="hover:bg-neutral-50"]:hover,
+:root.dark [class~="hover:bg-neutral-100"]:hover,
+:root.dark [class~="hover:bg-neutral-100/70"]:hover,
+:root.dark [class~="hover:bg-neutral-100/80"]:hover,
+:root.dark [class~="hover:bg-white"]:hover,
+:root.dark [class~="hover:bg-white/70"]:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+:root.dark input,
+:root.dark textarea,
+:root.dark select {
+  border-color: rgba(255, 255, 255, 0.14);
+  background-color: rgba(255, 255, 255, 0.05);
+  color: #f8fafc;
+}
+
+:root.dark input::placeholder,
+:root.dark textarea::placeholder {
+  color: #737373;
+}
