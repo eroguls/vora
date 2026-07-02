@@ -19,6 +19,13 @@ const formSchema = z.object({
 
 type ComposerForm = z.infer<typeof formSchema>;
 
+const starterPrompts = [
+  { label: 'Gözlem', text: 'Bugün fark ettiğim şey: ' },
+  { label: 'Deneyim', text: 'Kendi deneyimimden şunu paylaşmak istiyorum: ' },
+  { label: 'Soru', text: 'Bu konuda merak ettiğim şey: ' },
+  { label: 'Tavsiye', text: 'Bunu yaşayacaklara tavsiyem: ' },
+];
+
 interface SelectedFile {
   id: string;
   file: File;
@@ -145,6 +152,11 @@ export function CreateComposer() {
 
   const hasLongVideo = files.some((item) => item.file.type.startsWith('video/') && (item.metadata.duration ?? 0) >= 180);
 
+  const useStarterPrompt = (text: string) => {
+    const current = form.getValues('body')?.trim();
+    form.setValue('body', current ? `${current}\n\n${text}` : text, { shouldDirty: true });
+  };
+
   return (
     <form className="space-y-4 bg-neutral-50 p-4" onSubmit={form.handleSubmit((values) => submit(values, false))}>
       <section className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm shadow-neutral-100">
@@ -156,6 +168,13 @@ export function CreateComposer() {
           <span className="rounded-full bg-cyan-50 px-3 py-1 text-xs font-medium text-cyan-700">Otomatik</span>
         </div>
         <Textarea id="body" rows={8} className="mt-4 text-base" placeholder="Bugün ne fark ettin? Bir gözlem, kısa not, hikaye veya rehber yaz..." {...form.register('body')} />
+        <div className="mt-3 flex flex-wrap gap-2">
+          {starterPrompts.map((prompt) => (
+            <button key={prompt.label} type="button" className="focus-ring rounded-full border border-neutral-200 bg-white px-3 py-1.5 text-sm text-neutral-700 transition-colors hover:bg-neutral-50 dark:border-white/10 dark:bg-white/5 dark:text-neutral-200 dark:hover:bg-white/10" onClick={() => useStarterPrompt(prompt.text)}>
+              {prompt.label}
+            </button>
+          ))}
+        </div>
         <div className="mt-3 rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 p-4 text-center transition-colors hover:border-cyan-300 hover:bg-cyan-50/40" onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); void addFiles(event.dataTransfer.files); }}>
           <UploadCloud className="mx-auto h-7 w-7 text-cyan-600" />
           <p className="mt-2 text-sm font-semibold">Fotoğraf, video veya ses ekle</p>
