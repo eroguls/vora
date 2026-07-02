@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
-import { FileAudio, FileImage, GripVertical, Loader2, MapPin, Trash2, UploadCloud } from 'lucide-react';
+import { ChevronDown, FileAudio, FileImage, GripVertical, Loader2, MapPin, Trash2, UploadCloud } from 'lucide-react';
 import { Button, Input, Textarea } from '@vora/ui';
 import { api } from '../../lib/api';
 import { useAuthStore } from '../../lib/auth-store';
@@ -46,6 +46,7 @@ export function CreateComposer() {
   const [files, setFiles] = React.useState<SelectedFile[]>([]);
   const [message, setMessage] = React.useState<string | null>(null);
   const [submitting, setSubmitting] = React.useState(false);
+  const [detailsOpen, setDetailsOpen] = React.useState(false);
   const [locations, setLocations] = React.useState<Array<{ id: string; country: string; city: string | null }>>([]);
   const form = useForm<ComposerForm>({ defaultValues: { visibility: 'PUBLIC', language: 'tr' } });
 
@@ -93,7 +94,7 @@ export function CreateComposer() {
       return;
     }
     if (!values.title && !values.body && files.length === 0) {
-      setMessage('Paylaşmak için metin, başlık veya medya ekle.');
+      setMessage('Paylaşmak için bir şey yaz veya medya ekle.');
       return;
     }
     setSubmitting(true);
@@ -146,52 +147,33 @@ export function CreateComposer() {
 
   return (
     <form className="space-y-4 bg-neutral-50 p-4" onSubmit={form.handleSubmit((values) => submit(values, false))}>
-      <section className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm shadow-neutral-100">
-        <div className="flex items-start justify-between gap-3">
+      <section className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm shadow-neutral-100">
+        <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="font-semibold">İçerik</h2>
-            <p className="mt-1 text-sm text-neutral-500">Başlık isteğe bağlı; uzun içeriklerde keşfedilebilirliği artırır.</p>
+            <h2 className="font-semibold">Ne paylaşmak istiyorsun?</h2>
+            <p className="mt-1 text-sm text-neutral-500">Yaz, medya ekle, paylaş. Türünü Vora otomatik anlar.</p>
           </div>
-          <span className="rounded-full bg-cyan-50 px-3 py-1 text-xs font-medium text-cyan-700">Otomatik tür</span>
+          <span className="rounded-full bg-cyan-50 px-3 py-1 text-xs font-medium text-cyan-700">Otomatik</span>
         </div>
-        <div className="mt-4">
-        <label className="text-sm font-medium" htmlFor="title">Başlık</label>
-        <Input id="title" placeholder="İsteğe bağlı başlık" {...form.register('title')} />
-        {hasLongVideo && !form.watch('title') ? <p className="mt-1 text-sm text-cyan-700">Uzun video için başlık eklemek keşfedilebilirliği artırır.</p> : null}
+        <Textarea id="body" rows={8} className="mt-4 text-base" placeholder="Bugün ne fark ettin? Bir gözlem, kısa not, hikaye veya rehber yaz..." {...form.register('body')} />
+        <div className="mt-3 rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 p-4 text-center transition-colors hover:border-cyan-300 hover:bg-cyan-50/40" onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); void addFiles(event.dataTransfer.files); }}>
+          <UploadCloud className="mx-auto h-7 w-7 text-cyan-600" />
+          <p className="mt-2 text-sm font-semibold">Fotoğraf, video veya ses ekle</p>
+          <p className="text-xs text-neutral-500">İstersen boş bırak; sadece yazı da paylaşabilirsin.</p>
+          <label className="focus-ring mt-3 inline-flex cursor-pointer rounded-full border border-neutral-300 bg-white px-4 py-2 text-sm hover:bg-neutral-50">
+            Medya seç
+            <input className="sr-only" type="file" multiple accept="image/*,video/*,audio/*" onChange={(event) => event.target.files && void addFiles(event.target.files)} />
+          </label>
         </div>
-      <div className="mt-4">
-        <label className="text-sm font-medium" htmlFor="body">Bir şey paylaş...</label>
-        <Textarea id="body" rows={9} placeholder="Gözlemini, hikayeni veya rehberini yaz..." {...form.register('body')} />
-      </div>
       </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm shadow-neutral-100">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <h2 className="font-semibold">Medya</h2>
-            <p className="mt-1 text-sm text-neutral-500">12 dosyaya kadar fotoğraf, video veya ses ekleyebilirsin.</p>
-          </div>
-          {files.length ? <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium text-neutral-700">{files.length}/12</span> : null}
-        </div>
-      <div
-        className="mt-4 rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 p-6 text-center transition-colors hover:border-cyan-300 hover:bg-cyan-50/40"
-        onDragOver={(event) => event.preventDefault()}
-        onDrop={(event) => {
-          event.preventDefault();
-          void addFiles(event.dataTransfer.files);
-        }}
-      >
-        <UploadCloud className="mx-auto h-9 w-9 text-cyan-600" />
-        <p className="mt-2 text-sm font-semibold">Dosyaları sürükle veya seç</p>
-        <p className="text-xs text-neutral-500">Fotoğraf, video ve ses dosyaları desteklenir. İçerik türünü sistem belirler.</p>
-        <label className="focus-ring mt-3 inline-flex cursor-pointer rounded-md border border-neutral-300 bg-white px-4 py-2 text-sm hover:bg-neutral-50">
-          Dosya seç
-          <input className="sr-only" type="file" multiple accept="image/*,video/*,audio/*" onChange={(event) => event.target.files && void addFiles(event.target.files)} />
-        </label>
-      </div>
-
       {files.length ? (
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
+        <section className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm shadow-neutral-100">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="font-semibold">Eklenen medya</h2>
+            <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium text-neutral-700">{files.length}/12</span>
+          </div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
           {files.map((item, index) => (
             <div key={item.id} className="flex gap-3 rounded-xl border border-neutral-200 bg-white p-3">
               <button type="button" className="focus-ring rounded-md p-2 text-neutral-500 hover:bg-neutral-100" aria-label="Sıralama tutamacı" onClick={() => moveFile(item.id, index === 0 ? 1 : -1)}>
@@ -211,39 +193,51 @@ export function CreateComposer() {
               </button>
             </div>
           ))}
-        </div>
+          </div>
+        </section>
       ) : null}
-      </section>
 
-      <section className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm shadow-neutral-100">
-        <h2 className="font-semibold">Yayın ayarları</h2>
-      <div className="mt-4 grid gap-3 sm:grid-cols-3">
-        <label className="text-sm">
-          Görünürlük
-          <select className="focus-ring mt-1 h-10 w-full rounded-md border border-neutral-300 bg-white px-3" {...form.register('visibility')}>
-            <option value="PUBLIC">Herkese açık</option>
-            <option value="FOLLOWERS">Takipçiler</option>
-            <option value="UNLISTED">Bağlantı ile</option>
-            <option value="PRIVATE">Gizli</option>
-          </select>
-        </label>
-        <label className="text-sm">
-          Dil
-          <select className="focus-ring mt-1 h-10 w-full rounded-md border border-neutral-300 bg-white px-3" {...form.register('language')}>
-            <option value="tr">Türkçe</option>
-            <option value="en">English</option>
-          </select>
-        </label>
-        <label className="text-sm">
-          <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4" /> Konum</span>
-          <select className="focus-ring mt-1 h-10 w-full rounded-md border border-neutral-300 bg-white px-3" {...form.register('locationId')}>
-            <option value="">Konum yok</option>
-            {locations.map((location) => (
-              <option key={location.id} value={location.id}>{[location.city, location.country].filter(Boolean).join(', ')}</option>
-            ))}
-          </select>
-        </label>
-      </div>
+      <section className="rounded-3xl border border-neutral-200 bg-white p-4 shadow-sm shadow-neutral-100">
+        <button type="button" className="focus-ring flex w-full items-center justify-between gap-3 text-left" onClick={() => setDetailsOpen((value) => !value)}>
+          <span><span className="block font-semibold">İnce ayarlar</span><span className="mt-1 block text-sm text-neutral-500">Başlık, görünürlük, dil ve konum isteğe bağlıdır.</span></span>
+          <ChevronDown className={`h-5 w-5 text-neutral-500 transition-transform ${detailsOpen ? 'rotate-180' : ''}`} />
+        </button>
+        {detailsOpen ? (
+          <div className="mt-4 space-y-4">
+            <label className="block text-sm">
+              <span className="font-medium">Başlık <span className="font-normal text-neutral-500">(isteğe bağlı)</span></span>
+              <Input id="title" className="mt-1" placeholder="Örn. Berlin’de ev bulma deneyimim" {...form.register('title')} />
+              {hasLongVideo && !form.watch('title') ? <p className="mt-1 text-sm text-cyan-700">Uzun video için başlık eklemek keşfedilebilirliği artırır.</p> : null}
+            </label>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <label className="text-sm">
+                Görünürlük
+                <select className="focus-ring mt-1 h-10 w-full rounded-md border border-neutral-300 bg-white px-3" {...form.register('visibility')}>
+                  <option value="PUBLIC">Herkese açık</option>
+                  <option value="FOLLOWERS">Takipçiler</option>
+                  <option value="UNLISTED">Bağlantı ile</option>
+                  <option value="PRIVATE">Gizli</option>
+                </select>
+              </label>
+              <label className="text-sm">
+                Dil
+                <select className="focus-ring mt-1 h-10 w-full rounded-md border border-neutral-300 bg-white px-3" {...form.register('language')}>
+                  <option value="tr">Türkçe</option>
+                  <option value="en">English</option>
+                </select>
+              </label>
+              <label className="text-sm">
+                <span className="inline-flex items-center gap-1"><MapPin className="h-4 w-4" /> Konum</span>
+                <select className="focus-ring mt-1 h-10 w-full rounded-md border border-neutral-300 bg-white px-3" {...form.register('locationId')}>
+                  <option value="">Konum yok</option>
+                  {locations.map((location) => (
+                    <option key={location.id} value={location.id}>{[location.city, location.country].filter(Boolean).join(', ')}</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          </div>
+        ) : null}
       </section>
 
       {message ? <p className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{message}</p> : null}

@@ -1,5 +1,6 @@
 'use client';
 
+import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
@@ -11,10 +12,32 @@ export function RightRail() {
   const router = useRouter();
   const queryClient = useQueryClient();
   const currentUser = useAuthStore((state) => state.user);
+  const token = useAuthStore((state) => state.accessToken);
   const savedAccounts = useAuthStore((state) => state.savedAccounts);
   const switchAccount = useAuthStore((state) => state.switchAccount);
+  const [followedIds, setFollowedIds] = React.useState<Set<string>>(new Set());
+  const [followingId, setFollowingId] = React.useState<string | null>(null);
   const suggestions = useQuery({ queryKey: ['user-suggestions'], queryFn: () => api.get<Array<{ id: string; username: string; displayName: string; avatarUrl: string | null; bio: string | null }>>('/users/suggestions') });
   const users = suggestions.data ?? [];
+
+  const followUser = async (userId: string) => {
+    if (!token) return router.push('/login');
+    setFollowingId(userId);
+    setFollowedIds((current) => new Set([...current, userId]));
+    try {
+      await api.post(`/social/follow/${userId}`);
+      await queryClient.invalidateQueries({ queryKey: ['user-suggestions'] });
+    } catch {
+      setFollowedIds((current) => {
+        const next = new Set(current);
+        next.delete(userId);
+        return next;
+      });
+    } finally {
+      setFollowingId(null);
+    }
+  };
+
   return (
     <aside className="fixed right-0 top-0 hidden h-screen w-80 overflow-y-auto bg-white/70 px-5 py-5 backdrop-blur-xl xl:block dark:bg-[#0c1014]/70">
       <section>
@@ -49,14 +72,16 @@ export function RightRail() {
         </div>
         <div className="mt-3 space-y-3">
           {users.slice(0, 5).map((user) => (
-            <Link key={user.id} href={`/@${user.username}`} className="focus-ring flex items-center gap-3 rounded-2xl px-1 py-2 hover:bg-neutral-100/70 dark:hover:bg-white/10">
+            <div key={user.id} className="flex items-center gap-3 rounded-2xl px-1 py-2">
               <img src={user.avatarUrl ?? `https://i.pravatar.cc/120?u=${user.username}`} alt="" className="h-11 w-11 rounded-full object-cover" />
               <span className="min-w-0 flex-1 text-sm">
                 <span className="block truncate font-medium">{user.displayName}</span>
                 <span className="block truncate text-neutral-500 dark:text-neutral-400">@{user.username}</span>
               </span>
-              <span className="text-xs font-semibold text-[#008cff] dark:text-[#00e5ff]">Git</span>
-            </Link>
+              <button type="button" className="focus-ring rounded-full px-3 py-1 text-xs font-semibold text-[#008cff] hover:bg-neutral-100 disabled:text-neutral-400 dark:text-[#00e5ff] dark:hover:bg-white/10" disabled={followedIds.has(user.id) || followingId === user.id} onClick={() => void followUser(user.id)}>
+                {followedIds.has(user.id) ? 'Takiptesin' : followingId === user.id ? '...' : 'Takip et'}
+              </button>
+            </div>
           ))}
         </div>
       </section>
