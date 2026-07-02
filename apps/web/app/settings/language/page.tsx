@@ -5,14 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Button } from '@vora/ui';
 import { AppShell } from '../../../components/layout/app-shell';
 import { api } from '../../../lib/api';
-
-const languages = [
-  ['tr', 'Türkçe'],
-  ['en', 'English'],
-  ['de', 'Deutsch'],
-  ['fr', 'Français'],
-  ['es', 'Español'],
-] as const;
+import { profileLanguages } from '../../../lib/languages';
 
 export default function LanguageSettingsPage() {
   const profile = useQuery({ queryKey: ['profile-me'], queryFn: () => api.get<any>('/profiles/me') });
@@ -45,17 +38,17 @@ export default function LanguageSettingsPage() {
         <section className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm shadow-neutral-100">
           <h2 className="font-semibold">Arayüz dili</h2>
           <select value={uiLanguage} onChange={(event) => setUiLanguage(event.target.value)} className="mt-3 h-11 w-full rounded-md border border-neutral-300 bg-white px-3 text-sm">
-            {languages.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+            {profileLanguages.map((language) => <option key={language.value} value={language.value}>{language.label}</option>)}
           </select>
           <p className="mt-2 text-sm text-neutral-500">Tam çeviri sistemi bağlanana kadar bu tercih cihazında saklanır.</p>
         </section>
         <section className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm shadow-neutral-100">
           <h2 className="font-semibold">İçerik dilleri</h2>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
-            {languages.map(([value, label]) => (
-              <label key={value} className="flex items-center gap-2 rounded-xl border border-neutral-200 p-3 text-sm">
-                <input type="checkbox" checked={contentLanguages.includes(value)} onChange={(event) => setContentLanguages((current) => event.target.checked ? [...new Set([...current, value])] : current.filter((item) => item !== value))} />
-                {label}
+            {profileLanguages.map((language) => (
+              <label key={language.value} className="flex items-center gap-2 rounded-xl border border-neutral-200 p-3 text-sm">
+                <input type="checkbox" checked={contentLanguages.includes(language.value)} onChange={(event) => setContentLanguages((current) => event.target.checked ? [...new Set([...current, language.value])] : current.filter((item) => item !== language.value))} />
+                {language.label}
               </label>
             ))}
           </div>

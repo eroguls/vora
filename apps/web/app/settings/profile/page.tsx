@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { AppShell } from '../../../components/layout/app-shell';
 import { api } from '../../../lib/api';
 import { Button, Input, Textarea } from '@vora/ui';
+import { profileLanguages } from '../../../lib/languages';
 
 interface PresignedUpload {
   uploadUrl: string;
@@ -18,8 +19,14 @@ export default function ProfileSettingsPage() {
   const [saved, setSaved] = React.useState(false);
   const [avatarFile, setAvatarFile] = React.useState<File | null>(null);
   const [coverFile, setCoverFile] = React.useState<File | null>(null);
+  const [selectedLanguages, setSelectedLanguages] = React.useState<string[]>([]);
   const [uploading, setUploading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (query.data?.languages) setSelectedLanguages(query.data.languages.length ? query.data.languages : ['tr']);
+  }, [query.data?.languages]);
+
   return (
     <AppShell rightRail={false}>
       <div className="border-b border-neutral-200 p-4"><h1 className="text-lg font-semibold">Profil ayarları</h1></div>
@@ -31,6 +38,11 @@ export default function ProfileSettingsPage() {
           setUploading(true);
           setSaved(false);
           setError(null);
+          if (!selectedLanguages.length) {
+            setUploading(false);
+            setError('En az bir dil seçmelisin.');
+            return;
+          }
           const data = new FormData(event.currentTarget);
           try {
             const [uploadedAvatarUrl, uploadedCoverUrl] = await Promise.all([
@@ -49,7 +61,7 @@ export default function ProfileSettingsPage() {
               city: getNullableText(data, 'city'),
               avatarUrl: uploadedAvatarUrl ?? normalizeUrl(getText(data, 'avatarUrl')),
               coverUrl: uploadedCoverUrl ?? normalizeUrl(getText(data, 'coverUrl')),
-              languages: getText(data, 'languages').split(',').map((item) => item.trim()).filter(Boolean),
+              languages: selectedLanguages,
               links,
               isIndexable: data.get('isIndexable') === 'on',
               contactVisibility: data.get('contactVisibility') === 'PRIVATE' ? 'PRIVATE' : 'PUBLIC',
@@ -84,7 +96,26 @@ export default function ProfileSettingsPage() {
         <label className="block text-sm font-medium">Uzun hakkımda<Textarea className="mt-1" name="about" defaultValue={query.data?.about ?? ''} placeholder="Uzun hakkımda" /></label>
         <Input name="profession" defaultValue={query.data?.profession ?? ''} placeholder="Meslek" />
         <div className="grid gap-3 sm:grid-cols-2"><Input name="country" defaultValue={query.data?.country ?? ''} placeholder="Ülke" /><Input name="city" defaultValue={query.data?.city ?? ''} placeholder="Şehir" /></div>
-        <Input name="languages" defaultValue={(query.data?.languages ?? []).join(', ')} placeholder="Diller: tr, en" />
+        <section className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm shadow-neutral-100 dark:border-white/10 dark:bg-[#0c1014] dark:shadow-none">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h2 className="font-semibold">Diller</h2>
+              <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">Profilinde görünecek dilleri seç. En az bir dil zorunlu.</p>
+            </div>
+            <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs font-medium text-neutral-700 dark:bg-white/10 dark:text-neutral-300">{selectedLanguages.length} seçili</span>
+          </div>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {profileLanguages.map((language) => {
+              const checked = selectedLanguages.includes(language.value);
+              return (
+                <label key={language.value} className={`flex cursor-pointer items-center gap-2 rounded-xl border p-3 text-sm transition-colors ${checked ? 'border-[#00a3ff] bg-cyan-50 dark:border-[#00e5ff] dark:bg-[#00e5ff]/10' : 'border-neutral-200 hover:bg-neutral-50 dark:border-white/10 dark:hover:bg-white/10'}`}>
+                  <input type="checkbox" checked={checked} onChange={(event) => setSelectedLanguages((current) => event.target.checked ? [...new Set([...current, language.value])] : current.filter((item) => item !== language.value))} />
+                  <span>{language.label}</span>
+                </label>
+              );
+            })}
+          </div>
+        </section>
         <div className="grid gap-3 sm:grid-cols-2"><Input name="linkLabel" defaultValue={query.data?.links?.[0]?.label ?? ''} placeholder="Bağlantı etiketi" /><Input name="linkUrl" defaultValue={query.data?.links?.[0]?.url ?? ''} placeholder="https://..." /></div>
         <label className="block text-sm font-medium">
           Takip listeleri
